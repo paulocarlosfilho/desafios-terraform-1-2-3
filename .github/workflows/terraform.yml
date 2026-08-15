@@ -21,7 +21,7 @@ jobs:
         with:
           install-awslocal: false
         env:
-          LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT: "1"
+          LOCALSTACK_AUTH_TOKEN: ${{ secrets.LOCALSTACK_AUTH_TOKEN }}
           SERVICES: "s3"
 
       - name: Setup Terraform
