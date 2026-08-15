@@ -15,20 +15,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # 1. Sobe o LocalStack usando a Action oficial (muito mais estável no CI)
+      # Sobe o LocalStack com a Action oficial e a variável de aceite exigida
       - name: Start LocalStack
         uses: LocalStack/setup-localstack@v0.2.2
         with:
-          services: "s3"
           install-awslocal: false
+        env:
+          LOCALSTACK_ACKNOWLEDGE_ACCOUNT_REQUIREMENT: "1"
+          SERVICES: "s3"
 
-      # 2. Configura a CLI do Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.0
 
-      # 3. Comandos do Terraform apontando para o endpoint local do LocalStack
       - name: Terraform Init
         run: terraform init
 
