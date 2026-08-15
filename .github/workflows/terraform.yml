@@ -15,33 +15,20 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Start LocalStack (Slim/Fast)
-        run: |
-          docker run --rm -d \
-            --name localstack \
-            -p 4566:4566 \
-            -e SERVICES=s3 \
-            localstack/localstack
-          
-          echo "Aguardando o LocalStack S3 iniciar..."
-          for i in {1..30}; do
-            if curl -s http://localhost:4566/_localstack/health | grep -q "\"s3\": \"running\""; then
-              echo "LocalStack S3 está rodando com sucesso!"
-              exit 0
-            fi
-            echo "Tentativa $i/30: LocalStack ainda não respondeu, aguardando..."
-            sleep 5
-          done
-          
-          echo "ERRO: O LocalStack demorou muito para subir. Logs do container:"
-          docker logs localstack
-          exit 1
+      # 1. Sobe o LocalStack usando a Action oficial (muito mais estável no CI)
+      - name: Start LocalStack
+        uses: LocalStack/setup-localstack@v0.2.2
+        with:
+          services: "s3"
+          install-awslocal: false
 
+      # 2. Configura a CLI do Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.0
 
+      # 3. Comandos do Terraform apontando para o endpoint local do LocalStack
       - name: Terraform Init
         run: terraform init
 
